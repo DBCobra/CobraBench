@@ -24,15 +24,15 @@ Environment:
 Host client1
 	Hostname [hostname]
 	User [you]
-	IdentityFile /Users/[you]/.ssh/id_rsa
+	IdentityFile [your id_rsa]
 Host client2
 	Hostname [hostname]
 	User [you]
-	IdentityFile /Users/[you]/.ssh/id_rsa
+	IdentityFile [your id_rsa]
 Host client3
 	Hostname [hostname]
 	User [you]
-	IdentityFile /Users/[you]/.ssh/id_rsa
+	IdentityFile [your id_rsa]
 
 2. install python3.7.5 to run evaluation scripts
   	// install Anaconda (https://www.anaconda.com/products/individual)
@@ -116,7 +116,7 @@ Run benchmark
 	# 	database: ['rocksdb', 'postgres', 'google']
 	# 	workload: ['cheng', 'twitter', 'rubis', 'tpcc', 'ycsb']
 	# 	contention: ['low']
-	# 	inst_level: ['no', 'local', 'cloud']
+	# 	inst_level: ['no', 'local']
 
 	$ python eval/main.py recompile
 	the program will be executed in a tmux session
@@ -131,39 +131,20 @@ Run benchmark
 
 reproduce results:
 Figure 10:
-a) RocksDB
-b) PostgreSQL
-c) Google Datastore
+run benchmakrs as described above, set the workload to 'twitter', change the database and inst_level.
+for google:
+	you need to open a google datastore account and put the json private key in 'cobra_key.json'
+	for further connection instructions, please refer to [https://cloud.google.com/docs/authentication/getting-started]
 
 Figure 11:
-network traffic: use postgres, results will be stored in './netstats'
-history size: set inst_level to 'local', [TODO] edit code to calculate traceSize.
+network traffic: use postgres and the auto scirpts, results will be stored in './netstats'
+history size: set inst_level to 'local', run java manually
+$ mkdir -p /tmp/cobra/log
+$ java -ea -jar target/txnTest-1-jar-with-dependencies.jar local
+Calculate the total size of /tmp/cobra/log/*.log
 
 questions:
 -----
 do they need to run all the tests? (TPCC needs a pre-generated database and extra commands to reset db)
 	if not, which trials do we expect them to run?
 how to setup google cloud for them
-calculate traceSize by summing file sizes?
-run cloud or local?
-
-
-
-debug
------
-
-1. Redis
-
-redis.exceptions.ResponseError: DENIED Redis is running in protected mode because protected mode is enabled, no bind address was specified, no authentication password is requested to clients. In this mode connections are only accepted from the loopback interface. If you want to connect from external computers to Redis you may adopt one of the following solutions: 1) Just disable protected mode sending the command 'CONFIG SET protected-mode no' from the loopback interface by connecting to Redis from the same host the server is running, however MAKE SURE Redis is not publicly accessible from internet if you do so. Use CONFIG REWRITE to make this change permanent. 2) Alternatively you can just disable the protected mode by editing the Redis configuration file, and setting the protected mode option to 'no', and then restarting the server. 3) If you started the server manually just for testing, restart it with the '--protected-mode no' option. 4) Setup a bind address or an authentication password. NOTE: You only need to do one of the above things in order for the server to start accepting connections from the outside.
-
-change in redis config in /etc/redis/redis.conf
-"protected-mode no"
-
-2.  redis.exceptions.ResponseError: Client sent AUTH, but no password is set
-
-add passowrd to redis config
-https://medium.com/@umutuluer/resolving-the-err-client-sent-auth-but-no-password-is-set-error-b81438d10843
-
-3.  bash: line 0: cd: CobraVerifier: No such file or directory
-
-when run "local"
