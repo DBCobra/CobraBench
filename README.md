@@ -17,13 +17,13 @@ Install mvn and java
 
 Switch default Java: 
 
-    $ # requrie Java1. 8
+    $ # requrie Java1.8
     $ sudo update-alternatives --config java
 
 Install dependency
 
-    $ mvn install:install-file -Dfile=. /include/tapir. jar -DgroupId=tapir\
-      -DartifactId=tapir -Dversion=1. 4. 0 -Dpackaging=jar -DgeneratePom=tru
+    $ mvn install:install-file -Dfile=./include/tapir.jar -DgroupId=tapir\
+      -DartifactId=tapir -Dversion=1.4.0 -Dpackaging=jar -DgeneratePom=true
 
 Compile the code:
 
@@ -57,7 +57,7 @@ On the machine that you want to run the database and control the test:
 
 ### 1. ssh config
 
-First add your public key to your local . ssh/authorized_keys to make sure you can run `ssh localhost` without using password. 
+First add your public key to your local `.ssh/authorized_keys` to make sure you can run `ssh localhost` without using password. 
 
 Then add these lines to your `~/.ssh/config` , change `[you]` to your username and change `[hostname]` to the machine's ip address. 
 
@@ -134,7 +134,9 @@ $ fab -r eval/fabfile.py -H client3 rebuild
 
 Add one line in `/etc/postgresql/10/main/postgresql.conf` : 
 
-`listen_addresses = '*'` 
+```
+listen_addresses = '*'
+```
 
 Add 2 lines at the end of the file `listen_addresses = '*'` :
 
