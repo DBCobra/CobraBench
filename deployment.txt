@@ -1,0 +1,169 @@
+[cheng: I use eval/gen_histories.py to generate workloads for Fig5/7/8/9]
+
+important: don't put CobraBench folder directly under your home!
+note: sorry we will put some tempory files under the home of clients and localhost
+
+On the machine that you want to run the database and control the test:
+Build java
+1. install mvn and java
+$ sudo apt install maven
+# requrie Java1.8
+# install: $sudo apt install openjdk-8-jdk
+# switch default Java: $sudo update-alternatives --config java
+2. install dependency
+mvn install:install-file -Dfile=./include/tapir.jar -DgroupId=tapir\
+   -DartifactId=tapir -Dversion=1.4.0 -Dpackaging=jar -DgeneratePom=tru
+
+3. mvn install
+
+Environment:
+0. All machines are running on ubuntu 18.04. You need no less than 2 machines to simulate the clients and the database for postgres.
+1. ssh
+	First add your public key to your local .ssh/authorized_keys to make sure you can run `ssh localhost` without using password
+	Then add this to your `~/.ssh/config`, change [you] to your username and change [hostname] to the machine's ip address.
+Host client1
+	Hostname [hostname]
+	User [you]
+	IdentityFile /Users/[you]/.ssh/id_rsa
+Host client2
+	Hostname [hostname]
+	User [you]
+	IdentityFile /Users/[you]/.ssh/id_rsa
+Host client3
+	Hostname [hostname]
+	User [you]
+	IdentityFile /Users/[you]/.ssh/id_rsa
+
+2. install python3.7.5 to run evaluation scripts
+  	// install Anaconda (https://www.anaconda.com/products/individual)
+	$ conda create --name txn python=3.7.5
+	$ conda activate txn
+	$ which python
+	$ # /home/ubuntu/anaconda/envs/txn/bin/python
+	$ cd eval/
+	$ pip install -r requirements.txt
+
+3. install redis. We use redis to start multiple clients at the same time
+	$sudo apt install redis
+	$pip install redis
+	$sudo vim /etc/redis/redis.conf
+	# comment the line "bind 127.0.0.1 ::1"
+	# change the line from "protected-mode yes" to "protected-mode no"
+	$sudo service redis-server restart
+	$vim config.yaml.default
+	# REDIS_ADDRESS: replace the ip to this machine's ip
+	$vim eval/main.py
+	# change redis_ip in line 17 to this machine's ip
+	$QUIT
+
+4. setup docker
+	# install
+	$fab -r eval/fabfile.py -H localhost install-docker --uname="[username]"
+	$fab -r eval/fabfile.py -H client1 install-docker --uname="[username]"
+	$fab -r eval/fabfile.py -H client2 install-docker --uname="[username]"
+	$fab -r eval/fabfile.py -H client3 install-docker --uname="[username]"
+	# build docker image
+	$ cp config.yaml.default config.yaml
+	$fab -r eval/fabfile.py -H localhost rebuild
+	$fab -r eval/fabfile.py -H client1 rebuild
+	$fab -r eval/fabfile.py -H client2 rebuild
+	$fab -r eval/fabfile.py -H client3 rebuild
+
+-------------------------------------------------------------------------------
+
+Postgres
+
+1. install:
+	$sudo apt install postgresql postgresql-contrib
+	$sudo vim /etc/postgresql/10/main/postgresql.conf
+	# add one line in this file:
+	listen_addresses = '*'
+	$ sudo vim /etc/postgresql/10/main/pg_hba.conf
+	# add 2 lines at the end of the file
+	host    all             all              0.0.0.0/0                       md5
+	host    all             all              ::/0                            md5
+	$ sudo service postgresql restart
+
+	$ vim config.yaml.default
+	# change the IP address in DB_URL
+
+2. create users
+	$sudo -u postgres psql
+	create user cobra with password 'Cobra<318';
+	create user yourusername;
+	alter user yourusername with superuser;
+	\q
+
+-------------------------------------------------------------------------------
+
+Google
+1. setup the datastore in google
+2. download the credentials and save it in "cobra_key.json"
+https://cloud.google.com/datastore/docs/reference/libraries
+3. I don't remember other things...
+
+-------------------------------------------------------------------------------
+
+Run benchmark
+1. configuration
+	$ vim eval/main.py
+	# set line19: client_machine to the list of clients
+	# benchmakrs configurations: refer to the for loops in line 261:main() and gen_config.py
+
+2. run the benchmark
+	# edit 'eval/main.py' to select the workload
+	# run_one_series(database, workload, contention, inst_level)
+	# 	database: ['rocksdb', 'postgres', 'google']
+	# 	workload: ['cheng', 'twitter', 'rubis', 'tpcc', 'ycsb']
+	# 	contention: ['low']
+	# 	inst_level: ['no', 'local', 'cloud']
+
+	$ python eval/main.py recompile
+	the program will be executed in a tmux session
+	the log will be printed to $HOME/client.txt
+	If you run a series of evaluations, the logs will be put in the folder '~/trials' with corresponding names.
+	To collect numbers from the logs, you can run:
+	$ cd eval && python report.py
+	It will generate csv files under 'eval/data'
+
+
+-------------------------------------------------------------------------------
+
+reproduce results:
+Figure 10:
+a) RocksDB
+b) PostgreSQL
+c) Google Datastore
+
+Figure 11:
+network traffic: use postgres, results will be stored in './netstats'
+history size: set inst_level to 'local', [TODO] edit code to calculate traceSize.
+
+questions:
+-----
+do they need to run all the tests? (TPCC needs a pre-generated database and extra commands to reset db)
+	if not, which trials do we expect them to run?
+how to setup google cloud for them
+calculate traceSize by summing file sizes?
+run cloud or local?
+
+
+
+debug
+-----
+
+1. Redis
+
+redis.exceptions.ResponseError: DENIED Redis is running in protected mode because protected mode is enabled, no bind address was specified, no authentication password is requested to clients. In this mode connections are only accepted from the loopback interface. If you want to connect from external computers to Redis you may adopt one of the following solutions: 1) Just disable protected mode sending the command 'CONFIG SET protected-mode no' from the loopback interface by connecting to Redis from the same host the server is running, however MAKE SURE Redis is not publicly accessible from internet if you do so. Use CONFIG REWRITE to make this change permanent. 2) Alternatively you can just disable the protected mode by editing the Redis configuration file, and setting the protected mode option to 'no', and then restarting the server. 3) If you started the server manually just for testing, restart it with the '--protected-mode no' option. 4) Setup a bind address or an authentication password. NOTE: You only need to do one of the above things in order for the server to start accepting connections from the outside.
+
+change in redis config in /etc/redis/redis.conf
+"protected-mode no"
+
+2.  redis.exceptions.ResponseError: Client sent AUTH, but no password is set
+
+add passowrd to redis config
+https://medium.com/@umutuluer/resolving-the-err-client-sent-auth-but-no-password-is-set-error-b81438d10843
+
+3.  bash: line 0: cd: CobraVerifier: No such file or directory
+
+when run "local"
