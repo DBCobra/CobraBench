@@ -24,6 +24,8 @@ def getResult(trial_string, thread, client_num=2):
 
         trial_name = DIR_PATH + '/./trials/{}-{}-{}'.format(i, trial_string, thread)
         lats_folder = trial_name + '/cobra/lats'
+        if not os.path.exists(lats_folder):
+            continue
         files = os.listdir(lats_folder)
         for fname in files:
             fpath = lats_folder + '/' + fname
@@ -45,8 +47,8 @@ def getResult(trial_string, thread, client_num=2):
                                                             (last_end_time - first_end_time) / 1e9))
 
     print("total end time gap of all clients: {}s".format((max(end_times)-min(end_times))/1e9))
-    count_start = 15e9
-    count_end = min(end_times) - 15e9
+    count_start = 0
+    count_end = min(end_times) - 0
 
     count_time = count_end - count_start
 
@@ -193,7 +195,7 @@ def main():
                 for workload in ['cheng', 'tpcc', 'twitter', 'ycsb', 'rubis']:
                     for inst_level in ['no', 'ww', 'cloud', 'cloudnovnofz', 'cloudnofz', 'local']:
                         trial_string = '{}-{}-{}-{}'.format(database, workload, contention, inst_level)
-                        get_report(trial_string, 3 if database == 'postgres' else 1)
+                        get_report(trial_string, 10 if database == 'postgres' else 1)
 
     elif sys.argv[1] == 'net':
         database = 'postgres'
