@@ -9,7 +9,6 @@ import kv_interfaces.InstKV;
 import kv_interfaces.KvInterface;
 import kv_interfaces.RocksDBKV;
 import kv_interfaces.SqlKV;
-import kv_interfaces.TapirKV;
 import kv_interfaces.YugaByteDB;
 import main.Config;
 
@@ -41,8 +40,6 @@ public abstract class Benchmark {
 		} else if (libtype == Config.LibType.POSTGRESQL_LIB) {
 			String tableName = Config.getTableName(Config.get().BENCH_TYPE);
 			kvi = new SqlKV(tableName);
-		} else if (libtype == Config.LibType.TAPIR_LIB) {
-			kvi = TapirKV.getInstance();
 		} else if (libtype == Config.LibType.COCKROACH_LIB) {
 			kvi =  CockroachDB.getInstance();
 		} else if (libtype == Config.LibType.YUGABYTE_LIB) {
@@ -51,27 +48,27 @@ public abstract class Benchmark {
 			// should not be here
 			assert false;
 		}
-		
+
 		if(useInstrument) {
 			return new InstKV(kvi);
 		} else {
 			return kvi;
 		}
 	}
-	
+
 	public Benchmark(KvInterface kvi) {
 		this.kvi = kvi;
 	}
-	
+
 	// things to do before running benchmark: initialize the database / generate something / ...
 	// TODO: is returning type Transaction suitable?
 	public abstract Transaction[] preBenchmark();
-	
+
 	// feed the planner
 	public abstract Transaction getNextTxn();
-	
+
 	// clean-up after benchmark
 	public abstract void afterBenchmark();
-	
+
 	public abstract String[] getTags();
 }
