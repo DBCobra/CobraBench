@@ -1,0 +1,68 @@
+# Configs of everything
+---
+# --------------- DB Server Related -----------------
+# 0-chengKV, 1-google, 2-rocks, 3-postgres, 5-Tapir, 6-CockroachDB
+LIB_TYPE: 2
+
+# ---------------- Client library -------------------
+USE_INSTRUMENT: true
+NUM_TXN_IN_ENTITY: 1
+MAX_FZ_TXN_NUM: 100
+
+USE_NEW_EPOCH_TXN: false
+TIMESTAMP_ON: false
+LOCAL_LOG: true
+LOCAL_REMOTE_LOG: false
+CLOUD_LOG: false
+SIGN_DATA: false
+# RESULT_FILE_NAME: /mnt/result.txt
+#COBRA_FD: /mnt/cobra
+#COBRA_FD_LOG: /mnt/cobra/log
+
+# ------------------ RPC related --------------------
+SERVER_HOST: ye-cheng.duckdns.org
+# SERVER_HOST: 172.17.0.1
+SERVER_PORT: 8980 
+
+# ----------------- benchmark related ---------------
+# 0-CHENG, 1-TPCC, 2-YCSB, 3-RUBIS, 4-TWITTER
+BENCH_TYPE: 4
+
+# simply skip the data loading or testing process
+SKIP_LOADING: false
+SKIP_TESTING: false
+# set this to true: loading period will only store pure value, 
+# when those records are read from DB, they are given txnID/writeID: 0xbebeebee
+DONT_RECORD_LOADING: true
+REDIS_ADDRESS: "redis://172.31.31.90/0"
+
+TXN_NUM: 1000
+THREAD_NUM: 8
+CLIENT_NUM: 1
+# slow run: sleep this amount of milliseconds after sending every THROUGHPUT_PER_WAIT transaction
+WAIT_BETWEEN_TXNS: 0
+THROUGHPUT_PER_WAIT: 1000
+# this ID should be globally unique
+CLIENT_ID: 1
+
+# remote log through sockets
+VERIFIER_HOSTNAME: localhost
+
+
+# ----------------- chengTxn related ----------------
+# txn and op
+OP_PER_CHENGTXN: 8
+# ------------- chengTxn/YCSBT related --------------
+SEED: 123123123
+NUM_KEYS: 1000
+RATIO_INSERT: 0
+RATIO_READ: 50
+RATIO_UPDATE: 50
+RATIO_DELETE: 0
+RATIO_RMW: 0
+# --------------------TPC-C related------------------
+WAREHOUSE_NUM: 1
+# ---------------------RUBIS related-----------------
+RUBIS_USERS_NUM: 1000
+# ------------------- TWITTER related----------------
+TWITTER_USERS_NUM: 1000

@@ -2,6 +2,5 @@
 /data/
 result*
 my_run_bench.py
-*.yaml
 tmp*
 cobra_key.json
