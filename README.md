@@ -97,6 +97,7 @@ Install [Anaconda](https://www.anaconda.com/products/individual):
     $ cd $COBRA_HOME/CobraBench/
     $ wget https://repo.anaconda.com/archive/Anaconda3-2020.07-Linux-x86_64.sh
     $ bash Anaconda3-2020.07-Linux-x86_64.sh
+    $ source ~/.bashrc # or any shell you are using
 
 Then, install required python packages:
 
