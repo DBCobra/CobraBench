@@ -26,7 +26,7 @@ Now you can run a simple test:
     $ mkdir -p /tmp/cobra/log
     $ java -ea -jar target/txnTest-1-jar-with-dependencies.jar local config-historysize.yaml
 
-The transaction history will be stored in the folder `/tmp/cobra/log`.
+The history will be stored in the folder `/tmp/cobra/log`.
 
 You can specify workload parameters in Cobra's config file (`config-historysize.yaml` in the above case).
 See [Cobra bench configuration](#config) for more information.
@@ -35,7 +35,7 @@ Run Cobra bench with RocksDB (single machine)
 ---
 
 One can run Cobra bench with RocksDB on a single machine --
-RocksDB and its clients run in the same machine.
+both RocksDB and its clients locate in the same machine.
 (One can also run RocksDB and its clients on different machines, see [Step 3](#autorun) in the next chapter for more information.)
 
 First, specify using RocksDB as the backend in the config file:
@@ -50,13 +50,13 @@ Next, clear the existing logs and databases, and run Cobra bench:
     $ mkdir -p /tmp/cobra/log/
     $ java -ea -jar target/txnTest-1-jar-with-dependencies.jar local config.yaml
 
-The transaction history will be stored in the folder `/tmp/cobra/log/`.
+The history will be stored in the folder `/tmp/cobra/log/`.
 
 
 Run Cobra bench with PostgreSQL (multiple machines)
 ---
 
-This section introduces how to run experiments with PostgreSQL on multiple machines with Cobra's auto-scripts. Running them requires at least two machines: one for clients and one for the database.
+This section introduces how to run experiments with PostgreSQL on multiple machines using Cobra's auto-scripts. Running them requires at least two machines: one for clients and one for the database.
 
 **Note**: running the auto-scripts will create temporary files under the home folder of clients' machines.
 
@@ -68,7 +68,7 @@ On _the machine_ that you want to host the database and control the experiments:
 
 #### <a name='ssh' /> (1) config SSH
 
-Our auto-scripts require to log in clients' machines without password. One needs to setup the ssh keys among machines.
+Cobra's auto-scripts require to log in clients' machines without password. One needs to setup the ssh keys among machines.
 
 First, add your public key (`~/.ssh/id_rsa.pub`) to your local `~/.ssh/authorized_keys`. Make sure you can run `ssh localhost` without using password.
 
@@ -252,7 +252,7 @@ The script `report.py` will generate csv files (under `eval/data`) containing cl
 Run Cobra bench with Google Cloud Datastore
 ---
 
-1. Create a Cloud Datastore account in google.
+1. Create a Cloud Datastore account.
 2. Download the credentials and save it in "cobra_key.json" (`$COBRA_HOME/CobraBench/cobra_key.json` in the repository is a dummy file).
 3. Please refer to [this link](https://cloud.google.com/datastore/docs/reference/libraries) for further instructions. 
 4. Follow [Step 3: Run experiments with auto scripts](#autorun) in the PostgreSQL chapter, and choose `database` to be `google` in the file `main.py`.
