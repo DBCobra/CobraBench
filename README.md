@@ -58,7 +58,7 @@ Run Cobra bench with PostgreSQL (multiple machines)
 
 This section introduces how to run experiments with PostgreSQL on multiple machines with Cobra's auto-scripts. Running them requires at least two machines: one for clients and one for the database.
 
-**Note**: running the auto-scripts will create temporary files under the home folder of your machines (in both clients and the database).
+**Note**: running the auto-scripts will create temporary files under the home folder of clients' machines.
 
 
 ### Step 1: Environment for auto-scripts
@@ -66,13 +66,13 @@ This section introduces how to run experiments with PostgreSQL on multiple machi
 
 On _the machine_ that you want to host the database and control the experiments:
 
-#### (1) config SSH
+#### <a name='ssh' /> (1) config SSH
 
 Our auto-scripts require to log in clients' machines without password. One needs to setup the ssh keys among machines.
 
 First, add your public key (`~/.ssh/id_rsa.pub`) to your local `~/.ssh/authorized_keys`. Make sure you can run `ssh localhost` without using password.
 
-Second, add lines below to your `~/.ssh/config`, change `[you]` to your username, change `[hostname]` to the machine's ip address (or alias for the client's machine),
+Second, add lines below to your `~/.ssh/config`, change `[you]` to your username, change `[hostname]` to the machine's ip address (or alias of the client's machine),
 and `[path_id_rsa]` is the path to your private key  (for example, `~/.ssh/id_rsa`).
 
 ``` 
@@ -139,13 +139,16 @@ $ vim eval/main.py
 
 #### (4) Setup Docker
 
-Install (change `[username]` to your remote username on the client machines):
+Install docker packages:
 
 ``` 
 $ cd $COBRA_HOME/CobraBench/
-$ fab -r eval/fabfile.py -H localhost install-docker --uname="[username]"
-$ fab -r eval/fabfile.py -H client1 install-docker --uname="[username]"
+$ fab -r eval/fabfile.py -H localhost install-docker --uname="[localhost username]"
+$ fab -r eval/fabfile.py -H client1 install-docker --uname="[client1 username]"
 ```
+
+Note that the above `[... username]` should be the usernames of Linux that are configured in [config SSH](#ssh).
+
 
 Build docker image:
 
@@ -196,10 +199,12 @@ Set the database's ip address `config.yaml.default` in the config file:
 ``` 
 $ sudo -u postgres psql
 $ create user cobra with password 'Cobra<318';
-$ create user [yourusername];
-$ alter user [yourusername] with superuser;
+$ create user [username];
+$ alter user [username] with superuser;
 $ \q
 ```
+
+Note that the above `[username]` should be the username that associates with the private key mentioned in [config SSH](#ssh).
 
 ### <a name='autorun' /> Step 3: Run experiments with auto-scripts
 
@@ -258,26 +263,30 @@ The following instructions introduce how to reproduce the results in Cobra paper
 #### Latency and throughput overheads
 
 
-One can reproduce the results by running auto-scripts as described above. In particular, 
-follow [Step 3: Run experiments with auto scripts](#autorun);
-choose a database, set the workload to `twitter`, and set `inst_level` to `no` for legacy systems and `local` for Cobra.
+One can reproduce the results by running auto-scripts as described above.
+In particular, follow [Step 3: Run experiments with auto-scripts](#autorun):
+choose a database, set the workload to `twitter`, set `inst_level` to `no` for legacy systems and `local` for Cobra,
+and get throughput latency results by running the script `report.py`.
 
 
 #### Network cost and history sizes
 
-* Collect network traffic: run auto-scripts as described above, set the database to `postgres`, choose the workload you'd like to experiment, and and set `inst_level` to `no` for legacy systems and `local` for Cobra. Network costs will be stored in `./netstats`. 
+* Collect network traffic: run auto-scripts as described above.
+In particular, follow [Step 3: Run experiments with auto-scripts](#autorun): set the database to `postgres`, choose the workload you'd like to experiment, and and set `inst_level` to `no` for legacy systems and `local` for Cobra. Each experiment's network costs will be stored as a file under folder `$COBRA_HOME/CobraBench/netstats/`. 
 
-* Calculate history size: run one trial manually as below.
+* Calculate history size: one can measure the history size of a workload as follows.
 
     ```
     $ rm -r /tmp/cobra/ /tmp/rocksdb/
     $ mkdir -p /tmp/cobra/log
     $ cp config-historysize.yaml config.yaml
-    # update config.yaml: choose a workload you'd like to experiment
+    $ vim config.yaml
+    # update config.yaml and choose a workload you'd like to experiment
     
     $ java -ea -jar target/txnTest-1-jar-with-dependencies.jar local config.yaml
     ```
 
+See [Cobra bench configuration](#config) for how to update `config.yaml` and specify workload parameters.
 The history is stored under `/tmp/cobra/log/`, and you can calculate the total history size by `du -ch /tmp/cobra/log/*.log`.
 
 <a name='conifg' /> Cobra bench configuration
