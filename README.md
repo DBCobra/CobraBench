@@ -13,29 +13,32 @@ The following commands have been tested under Ubuntu 18.04.
 Build Cobra bench
 ---
 
-Install maven and java
+Install maven:
 
-    $ sudo apt install maven openjdk-8-jdk
+    $ sudo apt install maven
 
 Compile the code:
 
     $ mvn install
 
-Now you can run a test for rocksdb manually:
+Now you can run a simple test:
 
     $ mkdir -p /tmp/cobra/log
     $ java -ea -jar target/txnTest-1-jar-with-dependencies.jar local config-historysize.yaml
 
-You can change the config file (`config-historysize.yaml`) for different tests.
+The transaction history will be stored in the folder `/tmp/cobra/log`.
+
+You can specify workload parameters in Cobra's config file (`config-historysize.yaml` in the above case).
 See [Cobra bench configuration](#config) for more information.
 
 Run Cobra bench with RocksDB (single machine)
 ---
 
-One can run Cobra bench with RocksDB on a single machine.
-The clients and the RocksDB are in the same machine.
+One can run Cobra bench with RocksDB on a single machine --
+RocksDB and its clients run in the same machine.
+(One can also run RocksDB and its clients in multiple machines, see [Step 3](#autorun) in the next chapter.)
 
-First, specify in the config file to use RocksDB as the backend:
+First, specify using RocksDB as the backend in the config file:
 
     $ cd $COBRA_HOME/CobraBench
     $ cp config.yaml.default config.yaml
@@ -47,42 +50,43 @@ Next, clear the existing logs and databases, and run Cobra bench:
     $ mkdir -p /tmp/cobra/log
     $ java -ea -jar target/txnTest-1-jar-with-dependencies.jar local config.yaml
 
+The transaction history will be stored in the folder `/tmp/cobra/log`.
 
 
 Run Cobra bench with PostgreSQL (multiple machines)
 ---
 
-This section introduces how to run tests with PostgreSQL on multiple machines. Running the following experiments requires at least two machines: one for clients and one for the database.
+This section introduces how to run experiments with PostgreSQL on multiple machines with Cobra's auto-scripts. Running them requires at least two machines: one for clients and one for the database.
 
-**Note**: running the auto-scripts in this chapter will create temporary files under the home folder of your machines (both clients and the database).
+**Note**: running the auto-scripts will create temporary files under the home folder of your machines (in both clients and the database).
 
 
 ### Step 1: Environment for auto-scripts
 
 
-On _the machine_ that you want to run the database and control the test:
+On _the machine_ that you want to host the database and control the experiments:
 
 #### (1) config SSH
 
-Our auto-scripts require to login clients' machines without interruption. One needs to setup the ssh keys among machines.
+Our auto-scripts require to log in clients' machines without password. One needs to setup the ssh keys among machines.
 
 First, add your public key (`~/.ssh/id_rsa.pub`) to your local `~/.ssh/authorized_keys`. Make sure you can run `ssh localhost` without using password.
 
-Second, add these lines to your `~/.ssh/config` , change `[you]` to your username, change `[hostname]` to the machine's ip address,
+Second, add lines below to your `~/.ssh/config`, change `[you]` to your username, change `[hostname]` to the machine's ip address (or alias for the client's machine),
 and `[path_id_rsa]` is the path to your private key  (for example, `~/.ssh/id_rsa`).
 
 ``` 
 Host client1
-	Hostname [hostname]
-	User [you] 
-	IdentityFile [path_id_rsa]
+    Hostname [hostname]
+    User [you] 
+    IdentityFile [path_id_rsa]
 ```
 
-Finally, add your public key (`~/.ssh/id_rsa.pub`) to the machine of "client1"'s file `~/.ssh/authorized_keys`.
+Finally, add your public key (`~/.ssh/id_rsa.pub`) to `client1`'s  file `~/.ssh/authorized_keys`.
 
-Now, you should be able to login to "client1" without password:
+Now, you should be able to log in `client1` without password:
 
-    $ ssh [you]@[hostname] -i [path_id_rsa]
+    $ ssh client1
 
 
 #### (2) Install Python
@@ -115,8 +119,8 @@ We use Redis to start multiple clients at the same time.
 $ sudo apt install redis
 $ pip install redis
 $ sudo vim /etc/redis/redis.conf
-# comment the line "bind 127.0.0.1 ::1"
-# change the line from "protected-mode yes" to "protected-mode no"
+# comment out the line "bind 127.0.0.1 ::1"
+# change the line "protected-mode yes" to "protected-mode no"
 
 $ sudo service redis-server restart
 ```
@@ -126,10 +130,10 @@ Config Redis:
 ```
 $ cd $COBRA_HOME/CobraBench/
 $ vim config.yaml.default
-# line 38 (REDIS_ADDRESS: "redis://<ip>/0"): replace the <ip> to this machine's ip
+# line 38 (REDIS_ADDRESS: "redis://[ip]/0"): replace the [ip] to this machine's ip
 
 $ vim eval/main.py
-# line 17 (redis_ip = '192.168.1.176'): change redis_ip in line 17 to this machine's ip
+# line 17 (redis_ip = [ip]): change [ip] to this machine's ip
 ```
 
 
@@ -164,13 +168,13 @@ $ sudo apt-get install postgresql-10
 
 #### (2) config  PostgreSQL
 
-Add one line below at the end of the file `/etc/postgresql/10/main/postgresql.conf` : 
+Add the line below at the end of the file `/etc/postgresql/10/main/postgresql.conf`: 
 
 ```
 listen_addresses = '*'
 ```
 
-Add two lines below at the end of the file `/etc/postgresql/10/main/pg_hba.conf`:
+Add the two lines below at the end of the file `/etc/postgresql/10/main/pg_hba.conf`:
 
 ``` 
 host    all             all              0.0.0.0/0                       md5
@@ -181,9 +185,10 @@ Restart PostgreSQL:
 
     $ sudo service postgresql restart
 
-Set the ip address (`DB_URL` below) in the file `config.yaml.default` to the database's ip address.
+Set the database's ip address `config.yaml.default` in the config file:
 
-    DB_URL: "jdbc:postgresql://<ip>:5432/testdb"
+    $ vim $COBRA_HOME/CobraBench/config.yaml.default
+    # line 6 (DB_URL: "jdbc:postgresql://[ip]:5432/testdb"): replace [ip] with the database's ip address
 
 
 #### (3) create a PostgreSQL user
@@ -200,9 +205,10 @@ $ \q
 
 #### (1) Client configuration
 
-Edit `$COBRA_HOME/CobraBench/eval/main.py` and set line 19 (`client_machine` below) to the list of clients' hostnames. For our two machine setup, we should write:
+In Cobra's scripts, specify which clients are involved in this experiment. For our two machine setup, we have only one client, `client1`:
 
-    client_machine = ['client1']
+    $ vim $COBRA_HOME/CobraBench/eval/main.py
+    # line 19 (client_machine = ['client1']): include the clients' hostnames here
 
 #### (2) Run experiments
 
@@ -220,56 +226,75 @@ Run the script to start the experiment:
 
     $ python eval/main.py recompile
 
-Then, Cobra bench will be executed in a tmux session in each client machine. The runtime log will be printed to `$HOME/client.txt` . 
-If you run a series of evaluations, the logs will be copied to the folder `~/trials` with corresponding names. 
+Then, Cobra bench will be executed in a tmux session in each client machine. The runtime log will be printed to `$HOME/client.txt`. 
+If you run a series of evaluations, the logs for each run will be automatically copied to the folder `~/trials` with corresponding names. 
 
 
-Note: we will use localhost as client for `rocksdb` and `google` , while we use the clients
-in the list to run `postgres` . 
+Note: to experiment different databases, auto-scripts use the machine `localhost` as the client for `rocksdb` and `google`, while using the `client_machine` list (in file `eval/main.py`) to run `postgres` . 
 
 
-To collect numbers from the logs, you can run:
+To collect results from the logs (which are stored under `~/trials`), you can run:
 
-    $ cd eval
+    $ cd $COBRA_HOME/CobraBench/eval
     $ ln -s ~/trials trials
     $ python report.py
 
-It will generate csv files containing throughput and latency under `eval/data`.
+The script `report.py` will generate csv files (under `eval/data`) containing clients' throughput and latency for each experiment.
 
 Run Cobra bench with Google Cloud Datastore
 ---
 
-1. Create datastore in google.
-2. Download the credentials and save it in "cobra_key.json" (`$COBRA_HOME/CobraBench/cobra_key.json` is a dummy file).
+1. Create a Cloud Datastore account in google.
+2. Download the credentials and save it in "cobra_key.json" (`$COBRA_HOME/CobraBench/cobra_key.json` in the repository is a dummy file).
 3. Please refer to [this link](https://cloud.google.com/datastore/docs/reference/libraries) for further instructions. 
 4. Follow [Step 3: Run experiments with auto scripts](#autorun) in the PostgreSQL chapter, and choose `database` to be `google` in the file `main.py`.
 
 
-Reproducing results
+Reproduce results
 ---
+
+The following instructions introduce how to reproduce the results in Cobra paper (to appear), Section 6.3.
 
 #### Latency and throughput overheads
 
-This is an experiment in Cobra paper (to appear) Section 6.3.
+
 One can reproduce the results by running auto-scripts as described above. In particular, 
 follow [Step 3: Run experiments with auto scripts](#autorun);
-choose a database, set the workload to `twitter`, and choose `inst_level` as `no` for legacy systems and `local` for Cobra.
+choose a database, set the workload to `twitter`, and set `inst_level` to `no` for legacy systems and `local` for Cobra.
 
 
-#### Network cost and history size
+#### Network cost and history sizes
 
-**Collect network traffic:** run benchmarks as described above, set the database to `postgres`, vary the workload and `inst_level`. Results will be stored in `./netstats` . 
+* Collect network traffic: run auto-scripts as described above, set the database to `postgres`, choose the workload you'd like to experiment, and and set `inst_level` to `no` for legacy systems and `local` for Cobra. Network costs will be stored in `./netstats`. 
 
-**Calculate history size:** run one trial manually as below.
+* Calculate history size: run one trial manually as below.
 
+    ```
     $ rm -r /tmp/cobra/ /tmp/rocksdb/
     $ mkdir -p /tmp/cobra/log
-    $ cp config-historysize.yaml config.yaml # you can edit this file to select workloads
-    $ java -ea -jar target/txnTest-1-jar-with-dependencies.jar local
+    $ cp config-historysize.yaml config.yaml
+    # update config.yaml: choose a workload you'd like to experiment
+    
+    $ java -ea -jar target/txnTest-1-jar-with-dependencies.jar local config.yaml
+    ```
 
-Then you can calculate the total size of `/tmp/cobra/log/*.log`.
+The history is stored under `/tmp/cobra/log/`, and you can calculate the total history size by `du -ch /tmp/cobra/log/*.log`.
 
 <a name='conifg' /> Cobra bench configuration
 ---
 
-**[under construction]**
+Cobra bench uses a config file (for example, `$COBRA_HOME/CobraBench/config.yaml.default`) to sepecify parameters for an experiment.
+Here are the important parameters and their possible values:
+
+| parameters  |  meaning and values | 
+|---|:---|
+| `LIB_TYPE`  |  which database library is used by clients (which database to connect); `1` for Google Datastore, `2` for RocksDB, and `3` for PostgreSQL |
+| `BENCH_TYPE`  | the benchmark to run; `0` for BlindW, `1` for TPC-C, `3` for C-RUBiS, and `4` for C-Twitter |
+| `DB_URL`  |  the ip address of the remote database; see [Step 3: Run experiments with auto scripts](#autorun) |
+|`REDIS_ADDRESS`| the ip address of Redis; see [Step 3: Run experiments with auto scripts](#autorun) |
+|`TXN_NUM`| the size of the workload (number of transactions); should be an integer|
+|`THREAD_NUM`| the number of clients; should be an integer|
+
+
+
+
