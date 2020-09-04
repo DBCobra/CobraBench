@@ -171,10 +171,13 @@ $ sudo apt-get install postgresql-10
 
 #### (2) config  PostgreSQL
 
-Add the line below at the end of the file `/etc/postgresql/10/main/postgresql.conf`: 
+Modify the file `/etc/postgresql/10/main/postgresql.conf`: 
 
 ```
+# add this line to the end of the file.
 listen_addresses = '*'
+# find max_connections, set it to 500.
+max_connections = 500
 ```
 
 Add the two lines below at the end of the file `/etc/postgresql/10/main/pg_hba.conf`:
