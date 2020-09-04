@@ -301,7 +301,7 @@ The above two experiments reproduce Figure 11 in Section 6.3.
 <a name='config' /> Cobra bench configuration
 ---
 
-Cobra bench uses a config file (for example, `$COBRA_HOME/CobraBench/config.yaml.default`) to sepecify parameters for an experiment.
+Cobra bench uses a config file (for example, `$COBRA_HOME/CobraBench/config.yaml.default`) to specify parameters for an experiment.
 Here are the important parameters and their possible values:
 
 | parameters  |  meaning and values | 
