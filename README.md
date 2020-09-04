@@ -138,7 +138,7 @@ Add one line in `/etc/postgresql/10/main/postgresql.conf` :
 listen_addresses = '*'
 ```
 
-Add 2 lines at the end of the file `listen_addresses = '*'` :
+Add 2 lines at the end of the file `/etc/postgresql/10/main/pg_hba.conf` :
 
 ``` 
 host    all             all              0.0.0.0/0                       md5
