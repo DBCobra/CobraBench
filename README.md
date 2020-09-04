@@ -72,13 +72,13 @@ Cobra's auto-scripts require to log in clients' machines without password. One n
 
 First, add your public key (`~/.ssh/id_rsa.pub`) to your local `~/.ssh/authorized_keys`. Make sure you can run `ssh localhost` without using password.
 
-Second, add lines below to your `~/.ssh/config`, change `[you]` to your username, change `[hostname]` to the machine's ip address (or alias of the client's machine),
+Second, add lines below to your `~/.ssh/config`, change `[username]` to your Linux username, change `[hostname]` to the machine's ip address (or alias of the client's machine),
 and `[path_id_rsa]` is the path to your private key  (for example, `~/.ssh/id_rsa`).
 
 ``` 
 Host client1
     Hostname [hostname]
-    User [you] 
+    User [username] 
     IdentityFile [path_id_rsa]
 ```
 
@@ -144,11 +144,11 @@ Install docker packages:
 
 ``` 
 $ cd $COBRA_HOME/CobraBench/
-$ fab -r eval/fabfile.py -H localhost install-docker --uname="[localhost username]"
-$ fab -r eval/fabfile.py -H client1 install-docker --uname="[client1 username]"
+$ fab -r eval/fabfile.py -H localhost install-docker --uname="[username]"
+$ fab -r eval/fabfile.py -H client1 install-docker --uname="[username]"
 ```
 
-Note that the above `[... username]` should be the usernames of Linux that are configured in [config SSH](#ssh).
+Note that the above `[username]`s are Linux usernames for `localhost` and `client1`.
 
 
 Build docker image:
@@ -270,6 +270,7 @@ One can reproduce the results by running auto-scripts as described above.
 In particular, follow [Step 3: Run experiments with auto-scripts](#autorun):
 choose a database, set the workload to `twitter`, set `inst_level` to `no` for legacy systems and `local` for Cobra,
 and get throughput latency results by running the script `report.py`.
+This reproduces Figure 10 in Section 6.3.
 
 
 #### Network cost and history sizes
@@ -293,7 +294,9 @@ and get throughput latency results by running the script `report.py`.
     ```
 
 See [Cobra bench configuration](#config) for how to update `config.yaml` and specify workload parameters.
-The history is stored under `/tmp/cobra/log/`, and you can calculate the total history size by `du -ch /tmp/cobra/log/*.log`.
+The history is stored under `/tmp/cobra/log/`, and one can sum file sizes of `/tmp/cobra/log/*.log` to calculate the total history size.
+
+The above two experiments reproduce Figure 11 in Section 6.3.
 
 <a name='config' /> Cobra bench configuration
 ---
