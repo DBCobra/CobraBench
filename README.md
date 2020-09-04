@@ -235,16 +235,15 @@ Run the script to start the experiment:
     $ python eval/main.py recompile
 
 Then, Cobra bench will be executed in a tmux session in each client machine. The runtime log will be printed to `$HOME/client.txt`. 
-If you run a series of evaluations, the logs for each run will be automatically copied to the folder `~/trials` with corresponding names. 
+If you run a series of evaluations, the logs for each run will be automatically copied to the folder `eval/trials` with corresponding names. 
 
 
 Note: to experiment different databases, auto-scripts use the machine `localhost` as the client for `rocksdb` and `google`, while using the `client_machine` list (in file `eval/main.py`) to run `postgres` . 
 
 
-To collect results from the logs (which are stored under `~/trials`), you can run:
+To collect results from the logs (which are stored under `eval/trials`), you can run:
 
     $ cd $COBRA_HOME/CobraBench/eval
-    $ ln -s ~/trials trials
     $ python report.py
 
 The script `report.py` will generate csv files (under `eval/data`) containing clients' throughput and latency for each experiment.

@@ -134,10 +134,12 @@ def run_one_trial(database, workload, contention, inst_level, thread, txn_num):
 
 
     printG("Waiting for the end of the trial")
+    subprocess.run('mkdir -p eval/trials || true', shell=True)
     # wait for end & clean up
     for i in range(len(clients)):
         fab.wait_for_bench_finish(clients[i])
         fab.mv_cobra_tmp(clients[i], "trials", trial_names[i])
+        subprocess.run('scp -r {}:~/trials/{} eval/trials/ || true'.format(client_machine[i], trial_names[i]), shell=True)
 
     if monitor_net:
         fab._stop_monitor(db_host, 'netstats/netstats-{}.log'.format(trial_name), nic_device)
