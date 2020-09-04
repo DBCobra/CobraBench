@@ -119,10 +119,10 @@ public class Config {
 	public int NUM_TXN_IN_ENTITY = 1;
 
 	public String KEY_CLIENT_LOG_SUFFIX = "_CL";
-	public String EPOCH_KEY = "EPOCH";
+	public String EPOCH_KEY = "FZVERSION";
 	public final String EPOCH_CLIENTS_SEP_STR = ";";  // for value within EPOCH_KEY
 	public final String EPOCH_CLIENT_EPOCH_SEP_STR = ":";
-	
+
 	public boolean USE_NEW_EPOCH_TXN = false;
 
 	// ----------------- Benchmarking ----------------------
