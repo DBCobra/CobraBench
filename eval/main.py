@@ -123,7 +123,7 @@ def run_one_trial(database, workload, contention, inst_level, thread, txn_num):
     # start monitoring traffic
     monitor_net = (database == 'postgres')
     if monitor_net:
-        fab._monitor_network(db_host, 'netstats/netstats-{}.log'.format(trial_name), nic_devide)
+        fab._monitor_network(db_host, 'netstats/netstats-{}.log'.format(trial_name), nic_device)
 
     # wait for warming up
     time.sleep(5)
