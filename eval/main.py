@@ -16,7 +16,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('main')
 redis_ip = '192.168.1.176'
 db_host = 'localhost'
-client_machine = ['client1', 'client2', 'client3']
+nic_device = ''
+client_machine = ['localhost']
 
 def get_bench_num(workload):
     if workload == "cheng":
@@ -87,7 +88,7 @@ def run_one_trial(database, workload, contention, inst_level, thread, txn_num):
     printB("[{}] Starting {}".format(datetime.datetime.now(), trial_name))
 
     # set barrier
-    r = redis.Redis(host=redis_ip, port=6379, password="cobra318<>", db=0)
+    r = redis.Redis(host=redis_ip, port=6379, db=0)
     r.set("cobra_clients", 0)
 
     # clear workspace
@@ -122,7 +123,7 @@ def run_one_trial(database, workload, contention, inst_level, thread, txn_num):
     # start monitoring traffic
     monitor_net = (database == 'postgres')
     if monitor_net:
-        fab._monitor_network(db_host, 'netstats/netstats-{}.log'.format(trial_name))
+        fab._monitor_network(db_host, 'netstats/netstats-{}.log'.format(trial_name), nic_devide)
 
     # wait for warming up
     time.sleep(5)
@@ -139,7 +140,7 @@ def run_one_trial(database, workload, contention, inst_level, thread, txn_num):
         fab.mv_cobra_tmp(clients[i], "trials", trial_names[i])
 
     if monitor_net:
-        fab._stop_monitor(db_host, 'netstats/netstats-{}.log'.format(trial_name))
+        fab._stop_monitor(db_host, 'netstats/netstats-{}.log'.format(trial_name), nic_device)
 
     r.delete("cobra_clients")
     for c in clients:
@@ -148,7 +149,7 @@ def run_one_trial(database, workload, contention, inst_level, thread, txn_num):
 
 def run_one_series(database, workload, contention, inst_level):
     reload_db(database, workload, contention)
-    #threads = [128, 96, 64, 1, 2, 4, 8, 12, 16, 24, 32, 48]
+    threads = [128, 96, 64, 1, 2, 4, 8, 12, 16, 24, 32, 48]
     if database == 'google':
         threads = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
     elif database == 'rocksdb':
@@ -190,7 +191,7 @@ def run_one_google_trial(workload, contention, inst_level, thread, txn_num):
     printB("[{}] Starting {}".format(datetime.datetime.now(), trial_name))
 
     # set barrier
-    r = redis.Redis(host=redis_ip, port=6379, password="cobra318<>", db=0)
+    r = redis.Redis(host=redis_ip, port=6379, db=0)
     r.set("cobra_clients", 0)
 
     # clear workspace

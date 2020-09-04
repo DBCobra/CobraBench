@@ -147,24 +147,30 @@ def restart_s(host):
     run_server(host);
     wait_for_server_up(host)
 
-def _monitor_network(hostname, log_file):
+def _monitor_network(hostname, log_file, device=''):
     ## clear space first
     #_stop_monitor(hostname)
 
+    if device == '':
+        return
     host = Connection(hostname)
     #tmux = ' tmux new-session -d -s monitor '
     #cmd = tmux + ' "nethogs -t | grep --line-buffered \'5432\' > {}" '.format(log_file)
     #printB(cmd)
     #host.run(cmd)
 
-    host.run('ifconfig eno1 | grep "RX packets" >> {}'.format(log_file))
-    host.run('ifconfig eno1 | grep "TX packets" >> {}'.format(log_file))
+    host.run('mkdir -p netstats')
+    host.run('ifconfig {} | grep "RX packets" >> {}'.format(device, log_file))
+    host.run('ifconfig {} | grep "TX packets" >> {}'.format(device, log_file))
 
-def _stop_monitor(hostname, log_file):
+def _stop_monitor(hostname, log_file, device=''):
+    if device == '':
+        return
     host = Connection(hostname)
+    host.run('mkdir -p netstats')
     # host.run(' tmux kill-session -t monitor || true')
-    host.run('ifconfig eno1 | grep "RX packets" >> {}'.format(log_file))
-    host.run('ifconfig eno1 | grep "TX packets" >> {}'.format(log_file))
+    host.run('ifconfig {} | grep "RX packets" >> {}'.format(device, log_file))
+    host.run('ifconfig {} | grep "TX packets" >> {}'.format(device, log_file))
 
 @task
 def restart_c(host):

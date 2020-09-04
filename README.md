@@ -213,11 +213,11 @@ Note that the above `[username]` should be the username that associates with the
 In Cobra's scripts, specify which clients are involved in this experiment. For our two machine setup, we have only one client, `client1`:
 
     $ vim $COBRA_HOME/CobraBench/eval/main.py
-    # line 19 (client_machine = ['client1']): include the clients' hostnames here
+    # line 20 (client_machine = ['client1']): include the clients' hostnames here
 
 #### (2) Run experiments
 
-Edit `eval/main.py` (line 269) to select the parameters for an experiment:
+Edit `eval/main.py` (line 270) to select the parameters for an experiment:
 
 ``` python
 run_one_series(database, workload, contention, inst_level)
@@ -272,7 +272,8 @@ and get throughput latency results by running the script `report.py`.
 #### Network cost and history sizes
 
 * Collect network traffic: run auto-scripts as described above.
-In particular, follow [Step 3: Run experiments with auto-scripts](#autorun): set the database to `postgres`, choose the workload you'd like to experiment, and and set `inst_level` to `no` for legacy systems and `local` for Cobra. Each experiment's network costs will be stored as a file under folder `$COBRA_HOME/CobraBench/netstats/`. 
+* * First make sure you can run `ifconfig` on the database machine, then change `eval/main.py` (line 19), set `nic_device` to your NIC name (for example, eno1).
+* * In particular, follow [Step 3: Run experiments with auto-scripts](#autorun): set the database to `postgres`, choose the workload you'd like to experiment, and and set `inst_level` to `no` for legacy systems and `local` for Cobra. Each experiment's network costs will be stored as a file under folder `$COBRA_HOME/CobraBench/netstats/`. 
 
 * Calculate history size: one can measure the history size of a workload as follows.
 
