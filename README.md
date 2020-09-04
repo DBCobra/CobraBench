@@ -36,7 +36,7 @@ Run Cobra bench with RocksDB (single machine)
 
 One can run Cobra bench with RocksDB on a single machine --
 RocksDB and its clients run in the same machine.
-(One can also run RocksDB and its clients in multiple machines, see [Step 3](#autorun) in the next chapter.)
+(One can also run RocksDB and its clients on different machines, see [Step 3](#autorun) in the next chapter for more information.)
 
 First, specify using RocksDB as the backend in the config file:
 
@@ -47,10 +47,10 @@ First, specify using RocksDB as the backend in the config file:
 Next, clear the existing logs and databases, and run Cobra bench:
 
     $ rm -r /tmp/cobra/ /tmp/rocksdb/
-    $ mkdir -p /tmp/cobra/log
+    $ mkdir -p /tmp/cobra/log/
     $ java -ea -jar target/txnTest-1-jar-with-dependencies.jar local config.yaml
 
-The transaction history will be stored in the folder `/tmp/cobra/log`.
+The transaction history will be stored in the folder `/tmp/cobra/log/`.
 
 
 Run Cobra bench with PostgreSQL (multiple machines)
@@ -289,7 +289,7 @@ In particular, follow [Step 3: Run experiments with auto-scripts](#autorun): set
 See [Cobra bench configuration](#config) for how to update `config.yaml` and specify workload parameters.
 The history is stored under `/tmp/cobra/log/`, and you can calculate the total history size by `du -ch /tmp/cobra/log/*.log`.
 
-<a name='conifg' /> Cobra bench configuration
+<a name='config' /> Cobra bench configuration
 ---
 
 Cobra bench uses a config file (for example, `$COBRA_HOME/CobraBench/config.yaml.default`) to sepecify parameters for an experiment.
