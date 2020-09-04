@@ -277,7 +277,7 @@ and get throughput latency results by running the script `report.py`.
     * First make sure you can run `ifconfig` on the database machine, then change `eval/main.py` (line 19), set `nic_device` to your NIC name (for example, eno1).
     * Follow [Step 3: Run experiments with auto-scripts](#autorun): set the database to `postgres`, choose the workload you'd like to experiment, and and set `inst_level` to `no` for legacy systems and `local` for Cobra. 
     * Run `python eval/main.py recompile`
-    * Each experiment's network costs will be stored as a file under folder `$COBRA_HOME/CobraBench/netstats/`. 
+    * Each experiment's network costs will be stored as a file under folder `~/netstats/` in the DB's machine. 
 
 * Calculate history size: one can measure the history size of a workload as follows.
 
