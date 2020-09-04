@@ -8,7 +8,7 @@ DB_URL: "jdbc:postgresql://172.31.31.90:5432/testdb"
 # ---------------- Client library -------------------
 USE_INSTRUMENT: true
 NUM_TXN_IN_ENTITY: 1
-MAX_FZ_TXN_NUM: 100
+MAX_FZ_TXN_NUM: 20
 
 USE_NEW_EPOCH_TXN: false
 TIMESTAMP_ON: false
@@ -55,15 +55,15 @@ VERIFIER_HOSTNAME: localhost
 OP_PER_CHENGTXN: 8
 # ------------- chengTxn/YCSBT related --------------
 SEED: 123123123
-NUM_KEYS: 1000
+NUM_KEYS: 10000
 RATIO_INSERT: 0
-RATIO_READ: 50
-RATIO_UPDATE: 50
+RATIO_READ: 90
+RATIO_UPDATE: 10
 RATIO_DELETE: 0
 RATIO_RMW: 0
 # --------------------TPC-C related------------------
 WAREHOUSE_NUM: 1
 # ---------------------RUBIS related-----------------
-RUBIS_USERS_NUM: 1000
+RUBIS_USERS_NUM: 20000
 # ------------------- TWITTER related----------------
 TWITTER_USERS_NUM: 1000
