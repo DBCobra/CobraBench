@@ -34,7 +34,7 @@ See [Cobra bench configuration](#config) for more information.
 Run Cobra bench with RocksDB (single machine)
 ---
 
-One can run Cobra bench with RocksDB on a single machine --
+You can run Cobra bench with RocksDB on a single machine --
 both RocksDB and its clients will run on the same machine.
 (One can also run RocksDB and its clients on different machines, see [Step 3](#autorun) in the next section for more information.)
 
@@ -68,7 +68,7 @@ On the machine that you want to host the database and control the experiments:
 
 #### <a name='ssh' /> (1) config SSH
 
-Cobra's auto-scripts require logging into clients' machines without passwords. One needs to setup ssh keys among machines.
+Cobra's auto-scripts require logging into clients' machines without passwords. You need to setup ssh keys among machines.
 
 First, add your public key (`~/.ssh/id_rsa.pub`) to your local `~/.ssh/authorized_keys`. Make sure you can run `ssh localhost` without using a password.
 
@@ -88,15 +88,9 @@ Now, you should be able to log in `client1` without password:
 
     $ ssh client1
 
-<!--XXX: do we really need to tell evaluators about ssh keys? Isn't this
-level of knowledge assumed? Or no? -->
 
-#### (2) Install Python
+#### (2) Install Anaconda and required packages
 
-<!--XXX: the name of the step and the steps below aren't clear.
-Shouldn't the name of the step above be Install Anaconda? Is there a
-need to install Python itself (meaning the standard version of the language
-itself)? Even if so, the steps below aren't seemingly doing that. -->
 
 Install [Anaconda](https://www.anaconda.com/products/individual):
 
@@ -105,19 +99,13 @@ Install [Anaconda](https://www.anaconda.com/products/individual):
     $ bash Anaconda3-2020.07-Linux-x86_64.sh
     $ source ~/.bashrc # or any shell you are using
 
-Then, install required Python packages:
-
-<!-- XXX: similar comment. It's not really about Python, it's about
-Anaconda, no? -->
+Then, create Anaconda environment and install required packages:
 
 ``` 
 $ conda create --name txn python=3.7.5
 $ conda activate txn
 $ which python
 # You should see something like "/home/ubuntu/anaconda/envs/txn/bin/python"
-
-<!-- XXX: you are going to overwrite the standard Python
-installation? Shouldn't you tell that to the evaluator? -->
 
 $ cd $COBRA_HOME/CorbraBench/eval/
 $ pip install -r requirements.txt
@@ -150,10 +138,7 @@ $ vim eval/main.py
 ```
 
 
-#### (4) Setup Docker
-
-<!-- XXX: similar issue to python vs conda. It's not really "Docker" that's being set up. It's
-docker _images_, no? -->
+#### (4) Setup Docker images
 
 Install Docker packages:
 
@@ -295,7 +280,7 @@ and get throughput latency results by running the script `report.py`.
     * Run `python eval/main.py recompile`
     * Each experiment's network costs will be stored as a file under folder `~/netstats/` in the DB's machine. 
 
-* Calculate history size: one can measure the history size of a workload as follows.
+* Calculate history size: you can measure the history size of a workload as follows.
 
     ```
     $ rm -r /tmp/cobra/ /tmp/rocksdb/
@@ -308,7 +293,7 @@ and get throughput latency results by running the script `report.py`.
     ```
 
 See [Cobra bench configuration](#config) for how to update `config.yaml` and specify workload parameters.
-The history is stored under `/tmp/cobra/log/`, and one can sum file sizes of `/tmp/cobra/log/*.log` to calculate the total history size.
+The history is stored under `/tmp/cobra/log/`, and you can sum file sizes of `/tmp/cobra/log/*.log` to calculate the total history size.
 
 The above two experiments reproduce Figure 11 in Section 6.3.
 
