@@ -261,19 +261,18 @@ Run Cobra bench with Google Cloud Datastore
 Reproduce results
 ---
 
-The following instructions introduce how to reproduce the results in Cobra paper (to appear), Section 6.3.
+The following instructions introduce how to reproduce the results in Cobra paper [[1]](#cobrapaper), Section 6.3.
 
-#### Latency and throughput overheads
+#### Latency and throughput overheads (Figure 10)
 
 
-One can reproduce the results by running auto-scripts as described above.
+You can reproduce Figure 10 by running auto-scripts as described above.
 In particular, follow [Step 3: Run experiments with auto-scripts](#autorun):
 choose a database, set the workload to `twitter`, set `inst_level` to `no` for legacy systems and `local` for Cobra,
 and get throughput latency results by running the script `report.py`.
-This reproduces Figure 10 in Section 6.3.
 
 
-#### Network cost and history sizes
+#### Network cost and history sizes (Figure 11)
 
 * Collect network traffic:
     * First make sure you can run `ifconfig` on the database machine, then change `eval/main.py` (line 19), set `nic_device` to your NIC name (for example, eno1).
@@ -314,5 +313,8 @@ Here are the important parameters and their possible values:
 |`THREAD_NUM`| the number of clients; should be an integer|
 
 
+<a name="cobrapaper" /> Reference
+---
 
+[1] Cheng Tan, Changgeng Zhao, Shuai Mu, and Michael Walfish. Cobra: Making Transactional Key-Value Stores Verifiably Serializable. OSDI 2020.
 
