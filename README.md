@@ -1,10 +1,10 @@
 # Cobra Bench
 
 Cobra bench is a component of 
-[Cobra](https://github.com/DBCobra/CobraHome) project.
+the [Cobra](https://github.com/DBCobra/CobraHome) project.
 It includes benchmarks to generate histories for 
 [Cobra verifier](https://github.com/DBCobra/CobraVerifier) and 
-has tools to measure the client-side overheads. 
+has tools to measure client-side overheads. 
 
 This tutorial introduces how to build Cobra bench and run it with three different databases: [RocksDB](https://rocksdb.org/), [PostgreSQL](https://www.postgresql.org/), and [Google Cloud Datastore](https://cloud.google.com/datastore).
 
@@ -35,8 +35,8 @@ Run Cobra bench with RocksDB (single machine)
 ---
 
 One can run Cobra bench with RocksDB on a single machine --
-both RocksDB and its clients locate in the same machine.
-(One can also run RocksDB and its clients on different machines, see [Step 3](#autorun) in the next chapter for more information.)
+both RocksDB and its clients will run on the same machine.
+(One can also run RocksDB and its clients on different machines, see [Step 3](#autorun) in the next section for more information.)
 
 First, specify using RocksDB as the backend in the config file:
 
@@ -56,7 +56,7 @@ The history will be stored in the folder `/tmp/cobra/log/`.
 Run Cobra bench with PostgreSQL (multiple machines)
 ---
 
-This section introduces how to run experiments with PostgreSQL on multiple machines using Cobra's auto-scripts. Running them requires at least two machines: one for clients and one for the database.
+This section describes how to run experiments with PostgreSQL on multiple machines using Cobra's auto-scripts. Running them requires at least two machines: one for clients and one for the database.
 
 **Note**: running the auto-scripts will create temporary files under the home folder of clients' machines.
 
@@ -64,15 +64,15 @@ This section introduces how to run experiments with PostgreSQL on multiple machi
 ### Step 1: Environment for auto-scripts
 
 
-On _the machine_ that you want to host the database and control the experiments:
+On the machine that you want to host the database and control the experiments:
 
 #### <a name='ssh' /> (1) config SSH
 
-Cobra's auto-scripts require to log in clients' machines without password. One needs to setup the ssh keys among machines.
+Cobra's auto-scripts require logging into clients' machines without passwords. One needs to setup ssh keys among machines.
 
-First, add your public key (`~/.ssh/id_rsa.pub`) to your local `~/.ssh/authorized_keys`. Make sure you can run `ssh localhost` without using password.
+First, add your public key (`~/.ssh/id_rsa.pub`) to your local `~/.ssh/authorized_keys`. Make sure you can run `ssh localhost` without using a password.
 
-Second, add lines below to your `~/.ssh/config`, change `[username]` to your Linux username, change `[hostname]` to the machine's ip address (or alias of the client's machine),
+Second, add lines below to your `~/.ssh/config`, change `[username]` to your Linux username, change `[hostname]` to the machine's IP address (or alias of the client's machine),
 and `[path_id_rsa]` is the path to your private key  (for example, `~/.ssh/id_rsa`).
 
 ``` 
@@ -88,9 +88,15 @@ Now, you should be able to log in `client1` without password:
 
     $ ssh client1
 
+<!--XXX: do we really need to tell evaluators about ssh keys? Isn't this
+level of knowledge assumed? Or no? -->
 
 #### (2) Install Python
 
+<!--XXX: the name of the step and the steps below aren't clear.
+Shouldn't the name of the step above be Install Anaconda? Is there a
+need to install Python itself (meaning the standard version of the language
+itself)? Even if so, the steps below aren't seemingly doing that. -->
 
 Install [Anaconda](https://www.anaconda.com/products/individual):
 
@@ -99,13 +105,19 @@ Install [Anaconda](https://www.anaconda.com/products/individual):
     $ bash Anaconda3-2020.07-Linux-x86_64.sh
     $ source ~/.bashrc # or any shell you are using
 
-Then, install required python packages:
+Then, install required Python packages:
+
+<!-- XXX: similar comment. It's not really about Python, it's about
+Anaconda, no? -->
 
 ``` 
 $ conda create --name txn python=3.7.5
 $ conda activate txn
 $ which python
 # You should see something like "/home/ubuntu/anaconda/envs/txn/bin/python"
+
+<!-- XXX: you are going to overwrite the standard Python
+installation? Shouldn't you tell that to the evaluator? -->
 
 $ cd $COBRA_HOME/CorbraBench/eval/
 $ pip install -r requirements.txt
@@ -131,16 +143,19 @@ Config Redis:
 ```
 $ cd $COBRA_HOME/CobraBench/
 $ vim config.yaml.default
-# line 38 (REDIS_ADDRESS: "redis://[ip]/0"): replace the [ip] to this machine's ip
+# line 38 (REDIS_ADDRESS: "redis://[ip]/0"): replace [ip] with this machine's IP address
 
 $ vim eval/main.py
-# line 17 (redis_ip = [ip]): change [ip] to this machine's ip
+# line 17 (redis_ip = [ip]): change [ip] to this machine's IP address
 ```
 
 
 #### (4) Setup Docker
 
-Install docker packages:
+<!-- XXX: similar issue to python vs conda. It's not really "Docker" that's being set up. It's
+docker _images_, no? -->
+
+Install Docker packages:
 
 ``` 
 $ cd $COBRA_HOME/CobraBench/
@@ -151,7 +166,7 @@ $ fab -r eval/fabfile.py -H client1 install-docker --uname="[username]"
 Note that the above `[username]`s are Linux usernames for `localhost` and `client1`.
 
 
-Build docker image:
+Build Docker image:
 
 ``` 
 $ cp config.yaml.default config.yaml
@@ -192,10 +207,10 @@ Restart PostgreSQL:
 
     $ sudo service postgresql restart
 
-Set the database's ip address `config.yaml.default` in the config file:
+Set the database's IP address `config.yaml.default` in the config file:
 
     $ vim $COBRA_HOME/CobraBench/config.yaml.default
-    # line 6 (DB_URL: "jdbc:postgresql://[ip]:5432/testdb"): replace [ip] with the database's ip address
+    # line 6 (DB_URL: "jdbc:postgresql://[ip]:5432/testdb"): replace [ip] with the database's IP address
 
 
 #### (3) create a PostgreSQL user
@@ -208,13 +223,13 @@ $ alter user [username] with superuser;
 $ \q
 ```
 
-Note that the above `[username]` should be the username that associates with the private key mentioned in [config SSH](#ssh).
+Note that the above `[username]` should be the username associated with the private key mentioned in [config SSH](#ssh).
 
 ### <a name='autorun' /> Step 3: Run experiments with auto-scripts
 
 #### (1) Client configuration
 
-In Cobra's scripts, specify which clients are involved in this experiment. For our two machine setup, we have only one client, `client1`:
+In Cobra's scripts, specify which clients are involved in this experiment. For our two-machine setup, we have only one client, `client1`:
 
     $ vim $COBRA_HOME/CobraBench/eval/main.py
     # line 20 (client_machine = ['client1']): include the clients' hostnames here
@@ -239,7 +254,7 @@ Then, Cobra bench will be executed in a tmux session in each client machine. The
 If you run a series of evaluations, the logs for each run will be automatically copied to the folder `eval/trials` with corresponding names. 
 
 
-Note: to experiment different databases, auto-scripts use the machine `localhost` as the client for `rocksdb` and `google`, while using the `client_machine` list (in file `eval/main.py`) to run `postgres` . 
+Note: to experiment with different databases, auto-scripts use the machine `localhost` as the client for `rocksdb` and `google`, while using the `client_machine` list (in file `eval/main.py`) to run `postgres` . 
 
 
 To collect results from the logs (which are stored under `eval/trials`), you can run:
@@ -261,7 +276,7 @@ Run Cobra bench with Google Cloud Datastore
 Reproduce results
 ---
 
-The following instructions introduce how to reproduce the results in Cobra paper [[1]](#cobrapaper), Section 6.3.
+The following instructions describe how to reproduce the results in the Cobra paper [[1]](#cobrapaper), Section 6.3.
 
 #### Latency and throughput overheads (Figure 10)
 
